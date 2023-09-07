@@ -37,7 +37,13 @@ namespace Translate_1
 
         string[] keywords = { "alignas", "alignof", "andB", "and_eqB", "asma", "auto", "bitandB", "bitorB", "bool", "break", "case", "catch", "char", "char8_tc", "char16_t", "char32_t", "class", "complB", "conceptc", "const", "const_cast", "constevalc", "constexpr", "constinitc", "continue", "co_awaitc", "co_returnc", "co_yieldc", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "exportc", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "notB", "not_eqB", "nullptr", "operator", "orB", "or_eqB", "private", "protected", "public", "register reinterpret_cast", "requiresc", "return", "short", "signed", "sizeof", "static", "string", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using Декларации", "using Директива", "virtual", "void", "volatile", "wchar_t", "while", "xorB", "xor_eqB", "cout", "using", "main", "endl" };
         string[] operators = { ";", "->", "[", "]", "(", ")", "++", "--", "typeid", "const_cast", "dynamic_cast", "reinterpret_cast", "static_cast", "sizeof", "~", "!", "-", "+", "&", "*", "/", "new", "delete", ">>", "<<", ">", "<", "=>", "<=", "==", "!=", "^", "|", "||", "&&", "?:", "=", "*=", "/=", "+=", "-=", "%=", ">>=", "<<=", "&=", "|=", "^=", "throw", ",", ".", ".*", "->*", "?", "" };
-        
+
+
+        private void add_output(ref int i, ref int j, string word)
+        {
+            output_textbox.Text += word + "  ";
+            i += j - 1;
+        }
         private bool skip_include(ref int i, ref int j)
         {
             if (string.Compare(input_textbox.Text.Substring(i, j), "#include") == 0)
@@ -62,14 +68,14 @@ namespace Translate_1
             }
             if (string.Compare(input_textbox.Text.Substring(i, j), "/*") == 0)
             {
-                while (input_textbox.Text[i] != '*' && input_textbox.Text[i+1] != '/') //скид до конца комментария
+                while (input_textbox.Text[i] != '*' && input_textbox.Text[i + 1] != '/') //скид до конца комментария
                     i++;
                 i++;
                 return true;
             }
             return false;
         }
-        private bool find_keyword (ref int i, ref int j, string[] keywords)
+        private bool find_keyword(ref int i, ref int j, string[] keywords)
         {
             if (skip_comment(ref i, ref j))
                 return false;
@@ -89,8 +95,7 @@ namespace Translate_1
                         {
                             if (string.Compare(input_textbox.Text.Substring(i, j), keywords[z]) == 0)
                             {
-                                output_textbox.Text += keywords[z] + "\n";
-                                i += j - 1;
+                                add_output(ref i, ref j, keywords[z]);
                                 return true;
                             }
                         }
@@ -103,8 +108,7 @@ namespace Translate_1
                 {
                     if (string.Compare(input_textbox.Text.Substring(i, j), keywords[z]) == 0)
                     {
-                        output_textbox.Text += keywords[z] + "\n";
-                        i += j - 1;
+                        add_output(ref i, ref j, keywords[z]);
                         return true;
                     }
                 }
@@ -146,8 +150,7 @@ namespace Translate_1
 
                             if (flag)
                             {
-                                output_textbox.Text += input_textbox.Text.Substring(i, j) + "\n";
-                                i += j - 1;
+                                add_output(ref i, ref j, input_textbox.Text.Substring(i, j));
                                 return true;
                             }
                         }
@@ -174,8 +177,7 @@ namespace Translate_1
                         {
                             if (string.Compare(input_textbox.Text.Substring(i, j), operators[z]) == 0)
                             {
-                                output_textbox.Text += operators[z] + "\n";
-                                i += j - 1;
+                                add_output(ref i, ref j, operators[z]);
                                 return true;
                             }
                         }
@@ -186,8 +188,7 @@ namespace Translate_1
                 {
                     if (string.Compare(input_textbox.Text.Substring(i, j), operators[z]) == 0)
                     {
-                        output_textbox.Text += operators[z] + "\n";
-                        i += j - 1;
+                        add_output(ref i, ref j, operators[z]);
                         return true;
                     }
                 }
@@ -218,72 +219,130 @@ namespace Translate_1
 
                         if (flag)
                         {
-                            output_textbox.Text += input_textbox.Text.Substring(i, j) + "\n";
-                            i += j - 1;
+                            add_output(ref i, ref j, input_textbox.Text.Substring(i, j));
                             return true;
                         }
                     }
                 }
                 if (symb_after == '"' && symb_before == '"')
                 {
-                    output_textbox.Text += input_textbox.Text.Substring(i, j) + "\n";
-                    i += j;
+                    add_output(ref i, ref j, input_textbox.Text.Substring(i, j));
+                    i += 2;
                     return true;
                 }
             }
             return false;
         }
+        private bool find_comment(ref int i)
+        {
+            string word = input_textbox.Text.Substring(i, 2);
+            int j = 2;
 
+            if (string.Compare(word, "//") == 0)
+            {
+                while (input_textbox.Text[i+j] != '\n' && j < input_textbox.Text.Length - i)
+                    j++;
+
+                j--;
+
+                add_output(ref i, ref j, input_textbox.Text.Substring(i, j));
+                return true;
+            }
+            if (string.Compare(word, "/*") == 0)
+            {
+                while (input_textbox.Text.Substring(i + j - 2, 2) != "*/" && j < input_textbox.Text.Length - i)
+                    j++;
+
+                add_output(ref i, ref j, input_textbox.Text.Substring(i, j));
+                return true;
+            }
+
+            return false;
+        }
+
+        private void find_separator(ref int i)
+        {
+
+            int count_probel = 0, count_enter = 0;
+
+            for (i = 0; i < input_textbox.Text.Length - 2; i++)
+            {
+                string word = input_textbox.Text.Substring(i, 1);
+
+                if (string.Compare(word, " ") == 0)
+                {
+                    count_probel++;
+                }
+                if (string.Compare(word, "\n") == 0)
+                {
+                    count_enter++;
+                }
+            }
+            output_textbox.Text += "Пробелов: " + count_probel.ToString();
+            output_textbox.Text += "\nПереносов строк: " + count_enter.ToString();
+        }
 
         private void parsing(object sender, RoutedEventArgs e)
-        { 
+        {
             output_textbox.Text = "";
 
             int i, j;
 
-            output_textbox.Text += "Ключевые слова\n\n";
+            output_textbox.Text += "● Ключевые слова\n\n";
 
-            for (i = 0; i <= input_textbox.Text.Length; i++)
+            for (i = 0; i < input_textbox.Text.Length; i++)
             {
-                for (j = 1; j <= input_textbox.Text.Length - i && j < 20; j++)
+                for (j = 1; j < input_textbox.Text.Length - i && j < 20; j++)
                 {
                     if (find_keyword(ref i, ref j, keywords))
                         break;
                 }
             }
 
-            output_textbox.Text += "\n\nОператоры\n\n";
+            output_textbox.Text += "\n\n● Операторы\n\n";
 
-            for (i = 0; i <= input_textbox.Text.Length; i++)
+            for (i = 0; i < input_textbox.Text.Length; i++)
             {
-                for (j = 1; j <= input_textbox.Text.Length - i && j < 20; j++)
+                for (j = 1; j < input_textbox.Text.Length - i && j < 20; j++)
                 {
                     if (find_operator(ref i, ref j, operators))
                         break;
                 }
             }
 
-            output_textbox.Text += "\n\nИдентификаторы\n\n";
+            output_textbox.Text += "\n\n● Идентификаторы\n\n";
 
-            for (i = 0; i <= input_textbox.Text.Length; i++)
+            for (i = 0; i < input_textbox.Text.Length; i++)
             {
-                for (j = 1; j <= input_textbox.Text.Length - i && j < 20; j++)
+                for (j = 1; j < input_textbox.Text.Length - i && j < 20; j++)
                 {
                     if (find_identifier(ref i, ref j, keywords, operators))
                         break;
                 }
             }
-            output_textbox.Text += "\n\nЛитералы\n\n";
 
-            for (i = 0; i <= input_textbox.Text.Length; i++)
+            output_textbox.Text += "\n\n● Литералы\n\n";
+
+            for (i = 0; i < input_textbox.Text.Length; i++)
             {
-                for (j = 1; j <= input_textbox.Text.Length - i && j < 20; j++)
+                for (j = 1; j < input_textbox.Text.Length - i && j < 20; j++)
                 {
                     if (find_literal(ref i, ref j))
                         break;
                 }
             }
-            
+
+            output_textbox.Text += "\n\n● Комментарии\n\n";
+
+            for (i = 0; i < input_textbox.Text.Length - 2; i++)
+            {
+                find_comment(ref i);
+            }
+
+            output_textbox.Text += "\n\n● Разделители\n\n";
+
+            find_separator(ref i);
+
         }
     }
 }
