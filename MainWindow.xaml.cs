@@ -37,7 +37,7 @@ namespace Translate_1
 
         string[] keywords = { "alignas", "alignof", "andB", "and_eqB", "asma", "auto", "bitandB", "bitorB", "bool", "break", "case", "catch", "char", "char8_tc", "char16_t", "char32_t", "class", "complB", "conceptc", "const", "const_cast", "constevalc", "constexpr", "constinitc", "continue", "co_awaitc", "co_returnc", "co_yieldc", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit", "exportc", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "notB", "not_eqB", "nullptr", "operator", "orB", "or_eqB", "private", "protected", "public", "register reinterpret_cast", "requiresc", "return", "short", "signed", "sizeof", "static", "string", "static_assert", "static_cast", "struct", "switch", "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using Декларации", "using Директива", "virtual", "void", "volatile", "wchar_t", "while", "xorB", "xor_eqB", "cout", "using", "main", "endl" };
         string[] operators = { ";", "->", "[", "]", "(", ")", "++", "--", "typeid", "const_cast", "dynamic_cast", "reinterpret_cast", "static_cast", "sizeof", "~", "!", "-", "+", "&", "*", "/", "new", "delete", ">>", "<<", ">", "<", "=>", "<=", "==", "!=", "^", "|", "||", "&&", "?:", "=", "*=", "/=", "+=", "-=", "%=", ">>=", "<<=", "&=", "|=", "^=", "throw", ",", ".", ".*", "->*", "?", "" };
-
+        string[] names = { "Ключевые слова", "Операторы", "Идентификаторы", "Литералы", "Комментарии", "Разделители" };
 
         private void add_output(ref int i, ref int j, string word)
         {
@@ -259,7 +259,6 @@ namespace Translate_1
 
             return false;
         }
-
         private void find_separator(ref int i)
         {
 
@@ -285,61 +284,44 @@ namespace Translate_1
         private void parsing(object sender, RoutedEventArgs e)
         {
             output_textbox.Text = "";
+            int i, j, n;
 
-            int i, j;
-
-            output_textbox.Text += "● Ключевые слова\n\n";
-
-            for (i = 0; i < input_textbox.Text.Length; i++)
+            for (n = 0; n < 4; n++)
             {
-                for (j = 1; j < input_textbox.Text.Length - i && j < 20; j++)
+                output_textbox.Text += "● " + names[n] + "\n\n";
+
+                for (i = 0; i < input_textbox.Text.Length; i++)
                 {
-                    if (find_keyword(ref i, ref j, keywords))
-                        break;
+                    for (j = 1; j < input_textbox.Text.Length - i && j < 20; j++)
+                    {
+                        if (n == 0)
+                            if (find_keyword(ref i, ref j, keywords))
+                                break;
+
+                        if (n == 1)
+                            if (find_operator(ref i, ref j, operators))
+                                break;
+
+                        if (n == 2)
+                            if (find_identifier(ref i, ref j, keywords, operators))
+                                break;
+
+                        if (n == 3)
+                            if (find_literal(ref i, ref j))
+                                break;
+                    }
                 }
+                output_textbox.Text += "\n\n";
             }
 
-            output_textbox.Text += "\n\n● Операторы\n\n";
-
-            for (i = 0; i < input_textbox.Text.Length; i++)
-            {
-                for (j = 1; j < input_textbox.Text.Length - i && j < 20; j++)
-                {
-                    if (find_operator(ref i, ref j, operators))
-                        break;
-                }
-            }
-
-            output_textbox.Text += "\n\n● Идентификаторы\n\n";
-
-            for (i = 0; i < input_textbox.Text.Length; i++)
-            {
-                for (j = 1; j < input_textbox.Text.Length - i && j < 20; j++)
-                {
-                    if (find_identifier(ref i, ref j, keywords, operators))
-                        break;
-                }
-            }
-
-            output_textbox.Text += "\n\n● Литералы\n\n";
-
-            for (i = 0; i < input_textbox.Text.Length; i++)
-            {
-                for (j = 1; j < input_textbox.Text.Length - i && j < 20; j++)
-                {
-                    if (find_literal(ref i, ref j))
-                        break;
-                }
-            }
-
-            output_textbox.Text += "\n\n● Комментарии\n\n";
+            output_textbox.Text += "● " + names[4] + "\n\n";
 
             for (i = 0; i < input_textbox.Text.Length - 2; i++)
             {
                 find_comment(ref i);
             }
 
-            output_textbox.Text += "\n\n● Разделители\n\n";
+            output_textbox.Text += "\n\n● " + names[5] + "\n\n";
 
             find_separator(ref i);
 
