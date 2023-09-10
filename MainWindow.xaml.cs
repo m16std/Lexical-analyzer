@@ -17,9 +17,6 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Translate_1
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
