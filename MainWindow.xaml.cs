@@ -302,9 +302,6 @@ namespace Translate_1
             output_textbox.Text = "";
             int i, j;
 
-
-            //output_textbox.Text += "● " + names[n] + "\n\n";
-
             for (i = 0; i < input_textbox.Text.Length; i++)
             {
                 for (j = 1; j <= input_textbox.Text.Length - i && j < 20; j++)
@@ -312,8 +309,6 @@ namespace Translate_1
                     find_keyword(ref i, ref j, keywords);
                 }
             }
-
-
 
             output_textbox.Text += "\n\n● " + names[4] + "\n\n";
 
